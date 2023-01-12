@@ -59,7 +59,6 @@ namespace Core.Back.System.Controllers
 			{
 				return NotFound();
 			}
-			// Remove the payment from the database
 			_dataContext.Payments.Remove(payment);
 			await _dataContext.SaveChangesAsync();
 			// Return the updated list of payments
