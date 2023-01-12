@@ -3,7 +3,7 @@ using Core.Back.System.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Core.Back.System.Controllers
 {
@@ -25,10 +25,11 @@ namespace Core.Back.System.Controllers
 		[HttpGet("id")]
 		public async Task<ActionResult<Payment>> GetById(long id)
 		{
-			var getpayment = _dataContext.Payments.Find(id);
+			var getpayment = await _dataContext.Payments.FindAsync(id);
+
 			if (getpayment == null)
 			{
-				return NotFound();
+				return NotFound("Payment not found");
 			}
 			return getpayment;
 		}
@@ -40,21 +41,33 @@ namespace Core.Back.System.Controllers
 			return Ok(await _dataContext.Payments.ToListAsync());
 		}
 		[HttpPut("id")]
-		public async Task<IActionResult> UpdatePayment(long id)
+		public async Task<ActionResult<List<Payment>>> UpdatePayment(Payment rew, long id)
 		{
-			var ob = _dataContext.Payments;//.Update();
-			await _dataContext.SaveChangesAsync();
-			return Ok(ob);
+			var updatepayment = await _dataContext.Payments.FindAsync(id);
+			if (updatepayment == null) { return BadRequest($"Id {id} Not found"); }
+			updatepayment.Id = id;
+			updatepayment.Name = rew.Name;	
+			updatepayment.Description = rew.Description;
+			updatepayment.Datetime = rew.Datetime;
+			return Ok(updatepayment);
 		}
-		/*[HttpDelete("id")]
-		public async Task<IActionResult> DeletePayment(long id)
+		[HttpDelete("id")]
+		public async Task<ActionResult<List<Payment>>> UpdatePayment(long id)
 		{
-			var obdel = _dataContext.Payments.SingleOrDefault(x => x.Id == id);
-			*//*if (obdel == null)
-				return NotFound();*/
-			/*await Ok(_dataContext.Payments.ToListAsync());
-			return obdel;*//*
-			return ;
-		}*/
+			var payment = _dataContext.Payments.Find(id);
+			if (payment == null)
+			{
+				return NotFound();
+			}
+			// Remove the payment from the database
+			_dataContext.Payments.Remove(payment);
+			await _dataContext.SaveChangesAsync();
+			// Return the updated list of payments
+			return await _dataContext.Payments.ToListAsync();
+		}
 	}
 }
+
+
+
+
