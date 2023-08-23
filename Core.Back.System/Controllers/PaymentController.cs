@@ -45,11 +45,14 @@ namespace Core.Back.System.Controllers
 		{
 			var updatepayment = await _dataContext.Payments.FindAsync(id);
 			if (updatepayment == null) { return BadRequest($"Id {id} Not found"); }
+   			foreach(var item in updatepayment)
+      			{
 			updatepayment.Id = id;
 			updatepayment.Name = rew.Name;	
 			updatepayment.Description = rew.Description;
 			updatepayment.Datetime = rew.Datetime;
 			return Ok(updatepayment);
+   			}
 		}
 		[HttpDelete("id")]
 		public async Task<ActionResult<List<Payment>>> UpdatePayment(long id)
